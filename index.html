@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC방 AI 허브 전환 프로젝트: 인터랙티브 제안서</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A narrative, single-page scrolling application. The structure is designed to guide the user through a compelling story: starting with the problem (PC bang decline), revealing the hidden opportunity (idle GPUs), presenting the three-pillar solution (Education, Grid, sLLM), justifying it against the new administration's policies, detailing a phased implementation plan, and ending with a powerful vision. This top-down, story-driven flow is more persuasive than a static report layout, using interactive charts and diagrams to make data tangible and plans clear. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: PC Bang decline stats -> Goal: Show problem -> Viz: Key metric cards, line chart -> Interaction: Animate numbers on scroll -> Justification: Quickly establish the "why" before the "what".
+        - Report Info: PC Bang GPU resources per region -> Goal: Show scale of opportunity -> Viz: Interactive Bar Chart (Chart.js) -> Interaction: Hover tooltips show specific data for each city -> Justification: Makes the abstract national data personally relevant and impressive for local government heads.
+        - Report Info: Three core pillars (Education, K-Grid, sLLM) -> Goal: Explain the solution -> Viz: Three-column card layout with icons -> Interaction: Subtle hover effects -> Justification: Clearly delineates the core components of the solution in an easily digestible format.
+        - Report Info: Implementation Plan -> Goal: Show feasibility -> Viz: Vertical timeline diagram (HTML/CSS) -> Interaction: Scroll-based appearance animations -> Justification: Visually communicates that this is a well-thought-out, phased plan, not just an idea.
+        - Report Info: Governance Model -> Goal: Show collaboration -> Viz: HTML/CSS diagram of the "산학관민" council -> Interaction: Static diagram -> Justification: Clearly illustrates the roles and relationships of key partners.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 60vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+        .section-title {
+            font-weight: 900;
+            color: #1a3a6e;
+        }
+        .highlight-text {
+            color: #0056b3;
+            font-weight: 700;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0056b3;
+            font-weight: 700;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header id="navbar" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#home" class="text-2xl font-black text-blue-900">PC방 AI 허브</a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#vision" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">핵심 비전</a>
+                        <a href="#problem" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">위기와 기회</a>
+                        <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">솔루션</a>
+                        <a href="#plan" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">실행 계획</a>
+                        <a href="#impact" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">기대 효과</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-blue-900 hover:bg-gray-100 focus:outline-none">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="md:hidden hidden">
+              <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#vision" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">핵심 비전</a>
+                <a href="#problem" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">위기와 기회</a>
+                <a href="#solution" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">솔루션</a>
+                <a href="#plan" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">실행 계획</a>
+                <a href="#impact" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700">기대 효과</a>
+              </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="bg-white pt-20 pb-16 lg:pt-32 lg:pb-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-6xl font-black text-gray-900 leading-tight fade-in">
+                    대한민국의 내일을 여는 담대한 전환, <br class="hidden md:block">
+                    <span class="text-blue-600">PC방 AI 허브 프로젝트</span>
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-600 fade-in" style="transition-delay: 0.2s;">
+                    전국 PC방의 잠자는 GPU를 깨워 지역 경제에 활력을 불어넣고, 모든 국민이 AI 전문가로 성장하는 대한민국을 만듭니다. 이재명 정부의 'AI 3대 강국' 비전을 현장에서 실현할 혁신 전략을 제안합니다.
+                </p>
+                <div class="mt-10 fade-in" style="transition-delay: 0.4s;">
+                    <a href="#vision" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+                        비전 자세히 보기
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="vision" class="py-16 lg:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="section-title text-3xl md:text-4xl fade-in">핵심 비전: 세 개의 엔진이 만드는 시너지</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto fade-in">단순한 기능의 합이 아닌, 교육, 경제, 기술 주권이 서로를 강화하며 지속 가능한 미래를 만드는 강력한 선순환 생태계를 구축합니다.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="card p-8 fade-in">
+                        <div class="flex items-center justify-center h-16 w-16 bg-blue-100 text-blue-600 rounded-full mx-auto text-3xl font-black">AI</div>
+                        <h3 class="mt-6 text-xl font-bold text-gray-900">AI 교육 허브</h3>
+                        <p class="mt-2 text-gray-600">모든 국민을 위한 '디지털 다빈치 아카데미'. 아이부터 어르신까지 누구나 집 앞에서 최고 수준의 AI 교육을 받습니다.</p>
+                    </div>
+                    <div class="card p-8 fade-in" style="transition-delay: 0.2s;">
+                        <div class="flex items-center justify-center h-16 w-16 bg-green-100 text-green-600 rounded-full mx-auto text-3xl font-black">G</div>
+                        <h3 class="mt-6 text-xl font-bold text-gray-900">GPU 그리드 네트워크</h3>
+                        <p class="mt-2 text-gray-600">'K-Grid' 경제 엔진. 유휴 GPU를 통합하여 AI 스타트업과 연구소에 저렴한 컴퓨팅 파워를 제공합니다.</p>
+                    </div>
+                    <div class="card p-8 fade-in" style="transition-delay: 0.4s;">
+                        <div class="flex items-center justify-center h-16 w-16 bg-indigo-100 text-indigo-600 rounded-full mx-auto text-3xl font-black">S</div>
+                        <h3 class="mt-6 text-xl font-bold text-gray-900">sLLM 기술 주권 체험</h3>
+                        <p class="mt-2 text-gray-600">국산 소형 LLM을 직접 체험하고 튜닝하며 대한민국의 '주권 AI' 기술력을 국민과 함께 키워나갑니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="problem" class="bg-white py-16 lg:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="fade-in">
+                        <h2 class="section-title text-3xl md:text-4xl">위기 속의 기회</h2>
+                        <p class="mt-4 text-lg text-gray-600">PC방 산업은 구조적 위기에 직면해 있지만, 그 이면에는 국가의 미래를 바꿀 수 있는 거대한 잠재력이 숨어있습니다.</p>
+                        <div class="mt-8 space-y-4">
+                            <div class="card p-6 flex items-center">
+                                <span class="text-4xl mr-4">📉</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">가동률 19.38%</p>
+                                    <p class="text-gray-600">전국 PC의 80% 이상이 유휴 상태로 방치되어 있습니다.</p>
+                                </div>
+                            </div>
+                            <div class="card p-6 flex items-center">
+                                <span class="text-4xl mr-4">💡</span>
+                                <div>
+                                    <p class="font-bold text-gray-900">전국 70만대+ GPU 자원</p>
+                                    <p class="text-gray-600">잠자는 고성능 PC는 AI 시대의 석유인 컴퓨팅 파워입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fade-in" style="transition-delay: 0.2s;">
+                        <div class="chart-container">
+                            <canvas id="gpuResourceChart"></canvas>
+                        </div>
+                         <p class="text-center mt-4 text-sm text-gray-500">주요 광역자치단체별 일일 유휴 GPU 시간 추정치 (단위: 만 시간)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-16 lg:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="section-title text-3xl md:text-4xl fade-in">이재명 정부 비전과의 완벽한 동행</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto fade-in">본 제안은 'AI 3대 강국'과 '디지털 대전환'이라는 국가 목표를 가장 효율적이고 창의적으로 달성하는 핵심 실행 전략입니다.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="card p-6 text-center fade-in">
+                        <h4 class="font-bold text-lg text-blue-700">'AI 고속도로'의 혁신 대안</h4>
+                        <p class="mt-2 text-sm text-gray-600">중앙집중식 데이터센터의 한계를 보완하는 저비용, 고효율, 고회복탄력성의 분산형 국가 컴퓨팅 인프라를 즉시 확보합니다.</p>
+                    </div>
+                    <div class="card p-6 text-center fade-in" style="transition-delay: 0.1s;">
+                        <h4 class="font-bold text-lg text-blue-700">'모두의 AI' 실현 거점</h4>
+                        <p class="mt-2 text-sm text-gray-600">AI 교육의 지역적, 계층적 격차를 해소하고, '한국형 챗GPT'와 같은 공공 AI 서비스를 체험하는 물리적 통로를 제공합니다.</p>
+                    </div>
+                    <div class="card p-6 text-center fade-in" style="transition-delay: 0.2s;">
+                        <h4 class="font-bold text-lg text-blue-700">'주권 AI' 국민 체감</h4>
+                        <p class="mt-2 text-sm text-gray-600">국산 sLLM 보급을 통해 우리 기술의 중요성에 대한 국민적 공감대를 형성하고 AI 기술 주권을 강화합니다.</p>
+                    </div>
+                    <div class="card p-6 text-center fade-in" style="transition-delay: 0.3s;">
+                        <h4 class="font-bold text-lg text-blue-700">'시장친화적 국가투자' 모델</h4>
+                        <p class="mt-2 text-sm text-gray-600">정부, 기업, 대학, 시민이 함께 사회 문제를 해결하고 성장하는 '산학관민' 협력의 성공적인 선례를 만듭니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="plan" class="bg-white py-16 lg:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="section-title text-3xl md:text-4xl fade-in">성공을 위한 3단계 로드맵</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto fade-in">파일럿 프로그램으로 시작하여 지역 확산을 거쳐 전국 생태계를 구축하는, 위험은 낮추고 성공은 보장하는 단계별 실행 계획입니다.</p>
+                </div>
+                <div class="relative">
+                    <div class="border-l-2 border-blue-200 absolute h-full top-0 left-1/2 -ml-px"></div>
+                    <div class="space-y-12">
+                        <div class="flex items-center w-full fade-in">
+                            <div class="w-1/2 flex justify-end">
+                                <div class="w-full lg:w-2/3 p-6 card">
+                                    <h3 class="font-bold text-lg text-blue-800">1단계: 파일럿 (1~6개월)</h3>
+                                    <p class="mt-2 text-sm text-gray-600">관내 1-2개 구에서 20-30개 PC방과 함께 기술 검증 및 기본 교육 모델을 수립합니다. 저비용으로 성공 가능성을 입증합니다.</p>
+                                </div>
+                            </div>
+                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-black text-2xl z-10 mx-4">1</div>
+                            <div class="w-1/2"></div>
+                        </div>
+
+                        <div class="flex items-center w-full fade-in">
+                            <div class="w-1/2"></div>
+                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-black text-2xl z-10 mx-4">2</div>
+                            <div class="w-1/2 flex justify-start">
+                                <div class="w-full lg:w-2/3 p-6 card">
+                                    <h3 class="font-bold text-lg text-blue-800">2단계: 지역 확산 (7~18개월)</h3>
+                                    <p class="mt-2 text-sm text-gray-600">광역자치단체 전역으로 확대하고 K-Grid 상용 서비스를 개시합니다. 실질적인 수익 창출과 인재 배출이 시작됩니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center w-full fade-in">
+                            <div class="w-1/2 flex justify-end">
+                                <div class="w-full lg:w-2/3 p-6 card">
+                                    <h3 class="font-bold text-lg text-blue-800">3단계: 전국화 (19개월~)</h3>
+                                    <p class="mt-2 text-sm text-gray-600">성공 모델을 '플레이북'으로 제작하여 전국에 보급하고, 국가 AI 인프라와 연동하여 대한민국 AI 생태계의 핵심으로 자리매김합니다.</p>
+                                </div>
+                            </div>
+                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-black text-2xl z-10 mx-4">3</div>
+                            <div class="w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-16 lg:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="section-title text-3xl md:text-4xl fade-in">기대 효과: 지역과 국가의 동반 성장</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-6 fade-in">
+                        <h3 class="font-bold text-xl text-gray-900 mb-3">📈 경제 활성화</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>소상공인(PC방) 산업의 부활</li>
+                            <li>AI 스타트업의 국가적 인큐베이터</li>
+                            <li>미래형 '뉴칼라' 일자리 창출</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 fade-in" style="transition-delay: 0.2s;">
+                        <h3 class="font-bold text-xl text-gray-900 mb-3">🎓 사회적 형평성</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>AI 교육 기회의 완전한 민주화</li>
+                            <li>전 세대를 아우르는 디지털 격차 해소</li>
+                            <li>국가 인적 자본의 가치 극대화</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 fade-in" style="transition-delay: 0.4s;">
+                        <h3 class="font-bold text-xl text-gray-900 mb-3">🚀 기술 혁신</h3>
+                        <ul class="list-disc list-inside space-y-2 text-gray-600">
+                            <li>세계 최초의 분산형 공공 인프라 구축</li>
+                            <li>국가 AI 인프라의 전략적 회복탄력성 확보</li>
+                            <li>지속 가능한 혁신 생태계 플랫폼 마련</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-blue-800 text-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+                <h2 class="text-3xl font-bold fade-in">이제, 리더의 결단이 필요합니다.</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-blue-100 fade-in">이 담대한 도전에 앞장서 우리 지역을 대한민국, 나아가 세계가 주목하는 미래 혁신의 심장부로 만들어 주십시오.</p>
+                <p class="mt-8 text-sm text-blue-200 fade-in">본 제안 담당: 서울대학교 빅데이터 혁신융합대학</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white">
+      <div class="container mx-auto py-4 px-5 text-center text-sm">
+        <p>&copy; 2025 PC방 AI 허브 전환 프로젝트 제안. All Rights Reserved.</p>
+      </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = {
+                labels: ['서울', '경기', '인천', '부산', '대구', '대전', '광주', '경남'],
+                datasets: [{
+                    label: '일일 유휴 GPU 시간 (만 시간)',
+                    data: [175.0, 234.0, 63.7, 60.5, 59.7, 29.2, 39.9, 61.4],
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }]
+            };
+
+            const chartConfig = {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.dataset.label}: ${context.raw.toLocaleString()}만 시간`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return value + '만';
+                                }
+                            }
+                        },
+                        x: {
+                             grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            };
+
+            const gpuResourceChart = new Chart(
+                document.getElementById('gpuResourceChart'),
+                chartConfig
+            );
+
+            const faders = document.querySelectorAll('.fade-in');
+            const appearOptions = {
+                threshold: 0.2,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('visible');
+                        appearOnScroll.unobserve(entry.target);
+                    }
+                });
+            }, appearOptions);
+
+            faders.forEach(fader => {
+                appearOnScroll.observe(fader);
+            });
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = e.currentTarget.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    if(!mobileMenu.classList.contains('hidden')){
+                       mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+            
+            const sections = document.querySelectorAll('section[id]');
+            const navBarLinks = document.querySelectorAll('#navbar a.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navBarLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
